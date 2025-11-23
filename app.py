@@ -5,8 +5,13 @@ import time
 
 # --- 2. DB 연결 설정 ---
 # Streamlit 앱이 시작될 때 madang.db 파일에 연결
-DB_FILE = 'madang.db'
-conn = duckdb.connect(database=DB_FILE)
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "madang.db")
+
+conn = duckdb.connect(database=DB_PATH)
+
 
 # --- 3. 쿼리 함수 ---
 def query(sql, fetch_type='df'):
@@ -150,3 +155,4 @@ with tab2:
 
     else:
         st.warning("고객을 조회하거나 신규 고객을 등록하세요.")
+
