@@ -5,9 +5,8 @@ import time
 import os
 
 # --- 2. DB 연결 설정 ---
-# 현재 app.py 파일이 있는 디렉터리 절대 경로
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "madang.db")   # ← Streamlit Cloud에서 반드시 필요
+DB_FILE = os.path.join(BASE_DIR, "madang.db")   # ← DB 절대경로
 
 # DuckDB 연결
 conn = duckdb.connect(database=DB_FILE)
@@ -77,6 +76,14 @@ with tab1:
 
         if result_df is not None and not result_df.empty:
 
+            # --- 날짜를 'YYYY-MM-DD 00:00:00' 형식으로 통일 ---
+            if 'orderdate' in result_df.columns:
+                result_df['orderdate'] = result_df['orderdate'].astype(str)
+                result_df['orderdate'] = result_df['orderdate'].apply(
+                    lambda x: x if ' ' in x else x + ' 00:00:00'
+                )
+
+            # 주문 내역 필터
             order_history = result_df[result_df['bookname'].notna()]
 
             st.subheader(f"'{name}' 님의 주문 내역")
@@ -88,6 +95,7 @@ with tab1:
             else:
                 st.info(f"'{name}' 님의 주문 내역이 없습니다.")
 
+            # 고객 번호 유지
             custid = result_df['custid'].iloc[0]
             st.session_state['current_custid'] = custid
             st.session_state['current_name'] = name
